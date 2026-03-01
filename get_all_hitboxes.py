@@ -146,11 +146,12 @@ def get_character_hitbox_urls(page_title: str, hitbox_mode: str) -> list:
 
 def download_images(urls: list, output_dir: str) -> None:
     os.makedirs(output_dir, exist_ok=True)
+    total = len(urls)
     for i, url in enumerate(urls, 1):
         filename = urllib.parse.unquote(url.split("/")[-1])
         dest = os.path.join(output_dir, filename)
         if os.path.exists(dest):
-            print(f"  [{i}/{len(urls)}] skip (exists): {filename}")
+            print(f"  [{i}/{total}] skip (exists): {filename}")
             continue
         try:
             req = urllib.request.Request(
@@ -161,9 +162,9 @@ def download_images(urls: list, output_dir: str) -> None:
                 data = resp.read()
             with open(dest, "wb") as f:
                 f.write(data)
-            print(f"  [{i}/{len(urls)}] saved: {filename}")
+            print(f"  [{i}/{total}] saved: {filename}")
         except Exception as exc:
-            print(f"  [{i}/{len(urls)}] ERROR {filename}: {exc}", file=sys.stderr)
+            print(f"  [{i}/{total}] ERROR {filename}: {exc}", file=sys.stderr)
 
 # ── main ──────────────────────────────────────────────────────────────────────
 
@@ -192,12 +193,16 @@ def main():
         print(f"{len(urls)} found")
         all_urls.extend(urls)
 
-    print(f"\nTotal: {len(all_urls)} {hitbox_mode} image(s) across {len(characters)} characters.\n")
+        if download and urls:
+            char_dir = os.path.join(output_dir, char["name"])
+            print(f"  → downloading to {char_dir}/")
+            download_images(urls, char_dir)
 
+    print(f"\nTotal: {len(all_urls)} {hitbox_mode} image(s) across {len(characters)} characters.")
     if download:
-        print(f"Downloading to {output_dir}/…")
-        download_images(all_urls, output_dir)
+        print(f"Saved under {output_dir}/<character name>/")
     else:
+        print()
         for url in all_urls:
             print(url)
 
