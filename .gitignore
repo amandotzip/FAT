@@ -41,3 +41,11 @@ yarn-error.log*
 ios/App/fastlane/metadata
 ios/App/*.ipa
 ios/App/*.dSYM.zip
+
+downloaded_images/
+hitboxes/
+
+# Python
+.venv/
+__pycache__/
+*.pyc
